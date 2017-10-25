@@ -113,17 +113,19 @@ impl Token {
 
     pub fn is_arity_zero(&self) -> bool {
         match *self {
-            Token::EDump | Token::ENop | Token::EEndIf => true,
+            Token::EDump | 
+            Token::ENop | 
+            Token::EEndIf |
+            Token::ETodo |
+            Token::EInterrupt |
+            Token::EGoto |
+            Token::EBreak => true,
             _ => false,
         }
     }
 
     pub fn is_implemented(&self) -> bool {
         match *self {
-            Token::ETodo |
-            Token::EInterrupt |
-            Token::EGoto |
-            Token::EBreak |
             Token::EClear |
             Token::ETrap => false,
             _ => true,
@@ -424,6 +426,8 @@ impl Tokenize for Tokenizer {
     }
 }
 
+
+// cx,!,?{,BREAK,},esi,[1],edi,[1],==,?{,BREAK,},esi,++,edi,++,cx,--,0,GOTO
 #[cfg(test)]
 mod test {
     use super::*;
@@ -463,4 +467,19 @@ mod test {
         assert_eq!(Token::EConstant(i64::max_value() as u64),
                    Tokenizer::tokenize(format!("{}", i64::max_value()))[0]);
     }
+
+    #[test]
+    fn new_opcodes_git_book_example() {
+        let result = Tokenizer::tokenize(
+            "cx,!,?{,BREAK,},esi,[1],edi,[1],==,?{,BREAK,},esi,++,edi,++,cx,--,0,GOTO"
+        );
+        assert_eq!(result[0], Token::EIdentifier("cx".to_string()));
+        assert_eq!(result[1], Token::ENeg);
+        assert_eq!(result[2], Token::EIf);
+        assert_eq!(result[3], Token::EBreak);
+        assert_eq!(result[4], Token::EEndIf);
+        assert_eq!(result[5], Token::EIdentifier("esi".to_string()));
+        assert_eq!(result[6], Token::EPeek(8));
+    }
 }
+

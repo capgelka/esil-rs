@@ -610,6 +610,22 @@ mod test {
     }
 
     #[test]
+    fn parser_new_instructions() {
+        let regset = sample_regset();
+        let mut parser = Parser::init(Some(regset), Some(64));
+        let expr =
+            ExpressionConstructor::run("cx,!,?{,BREAK,},esi,[1],edi,[1],==,?{,BREAK,},esi,++,edi,++,cx,--,0,GOTO",
+                                       Some(&mut parser));
+
+        let expected = "(EIf  (ENeg  cx, -), -)(EBreak  -, -)(EEndIf  -, -)\
+                        (EIf  (ECmp  (EPeek(8)  edi, -), (EPeek(8)  esi, -)), -)\
+                        (EBreak  -, -)(EEndIf  -, -)(EAdd  esi, 0x1)(EAdd  edi, 0x1)\
+                        (ESub  cx, 0x1)(EGoto  -, -)";
+
+        assert_eq!(expected, &expr);
+    }
+
+    #[test]
     fn parser_follow_false() {
         // TODO
     }
