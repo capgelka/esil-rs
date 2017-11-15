@@ -12,7 +12,7 @@ use std::collections::{HashMap, VecDeque};
 
 #[derive(Debug, Clone)]
 pub struct Parser {
-    stack: Vec<Token>,
+    pub stack: Vec<Token>,
     tstack: Vec<Token>,
     tokens: Option<VecDeque<Token>>,
     // Number of instructions to ignore setting of ESIL variables, i.e.,
